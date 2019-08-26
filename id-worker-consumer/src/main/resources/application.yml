@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: dubbo-registry-zookeeper-consumer-sample
+
+demo:
+  service:
+    version: 1.0.0
+
+dubbo:
+  registry:
+    address: zookeeper://gwt.com:2181
