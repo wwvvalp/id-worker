@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class TimeUploadExecutor implements Runnable {
-    private static ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("time-upload-executor-%d").build();
-    private static ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2 + 1, threadFactory);
+    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("time-upload-executor-%d").build();
+    private static final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2 + 1, threadFactory);
     private static final Logger logger = LoggerFactory.getLogger(TimeUploadExecutor.class);
 
     /**
@@ -41,7 +41,7 @@ public class TimeUploadExecutor implements Runnable {
     @Override
     public void run() {
         try {
-            long lastTime = Long.valueOf(zkClient.getNodeData(Const.LOCAL_NODE));
+            long lastTime = Long.parseLong(zkClient.getNodeData(Const.LOCAL_NODE));
             long localTime = System.currentTimeMillis();
             if (lastTime > localTime) {
                 logger.error("【TimeUploadExecutor】服务器(ip:{})发生时钟回拨，请及时校准服务器时间！！！", Tools.getLocalIP());

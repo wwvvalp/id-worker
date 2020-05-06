@@ -47,7 +47,7 @@ public class CheckHandler {
         }
         zkClient.crateNode(Const.EPHEMERAL_NODE, CreateMode.EPHEMERAL, Long.toString(localTime));
         //3、校验-服务器时间与定时上报时间比较，若小于则服务器时钟回拨，异常报警
-        long remoteTime = Long.valueOf(zkClient.getNodeData(Const.LOCAL_NODE));
+        long remoteTime = Long.parseLong(zkClient.getNodeData(Const.LOCAL_NODE));
         if (remoteTime > System.currentTimeMillis()) {
             logger.error("【服务器时钟回拨，请校准时间后启动】");
             throw new IllegalStateException("服务器时钟回拨，请校准时间后启动！！！");

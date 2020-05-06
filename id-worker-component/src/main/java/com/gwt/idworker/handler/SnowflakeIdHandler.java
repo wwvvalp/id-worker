@@ -40,10 +40,10 @@ public class SnowflakeIdHandler {
      */
     public SnowflakeIdHandler(long workerId, long dataCenterId, long startTimestamp) {
         if (workerId > Const.MAX_WORKER_ID || workerId < 0) {
-            throw new IllegalArgumentException(String.format("workerId 不能大于 {} or 小于 0", Const.MAX_WORKER_ID));
+            throw new IllegalArgumentException(String.format("workerId 不能大于 %s or 小于 0", Const.MAX_WORKER_ID));
         }
         if (dataCenterId > Const.MAX_DATA_CENTER_ID || dataCenterId < 0) {
-            throw new IllegalArgumentException(String.format("dataCenterId workerId 不能大于 {} or 小于 0", Const.MAX_DATA_CENTER_ID));
+            throw new IllegalArgumentException(String.format("dataCenterId workerId 不能大于 %s or 小于 0", Const.MAX_DATA_CENTER_ID));
         }
         this.workerId = workerId;
         this.dataCenterId = dataCenterId;
@@ -60,7 +60,7 @@ public class SnowflakeIdHandler {
         //如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
         if (timestamp < lastTimestamp) {
             throw new RuntimeException(
-                    String.format("时钟回拨.  拒绝生成新id {} 毫秒！！！", lastTimestamp - timestamp));
+                    String.format("时钟回拨.  拒绝生成新id %s 毫秒！！！", lastTimestamp - timestamp));
         }
         //如果是同一时间生成的，则进行毫秒内序列
         if (lastTimestamp == timestamp) {
