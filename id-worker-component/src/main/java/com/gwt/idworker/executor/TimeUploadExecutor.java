@@ -50,7 +50,7 @@ public class TimeUploadExecutor implements Runnable {
             zkClient.updateNodeData(Const.LOCAL_NODE, String.valueOf(localTime));
             logger.info("【TimeUploadExecutor】localTime={}", localTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("【TimeUploadExecutor】error", e);
         } finally {
             executor.schedule(this, NEXT_TIME, TimeUnit.SECONDS);
         }
