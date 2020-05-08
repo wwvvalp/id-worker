@@ -23,15 +23,12 @@ public class IdWorkerConsumerApplication {
     @Bean
     public ApplicationRunner runner() {
         return args -> {
-            for (int i=0;i<4000;i++) {
-                new Thread(()->{
+            for (int i=0;i<40000000;i++) {
                     Long start = System.currentTimeMillis();
                     Long id = idWorker.generateId().getData();
                     logger.info("【idWorker.generateId()】ID={}, 耗时={}", id, System.currentTimeMillis()-start);
                     logger.info("【idWorker.decodeId()】ID={}", idWorker.decodeId(id).getData());
-                }).start();
             }
-            Thread.sleep(10000);
 
         };
     }

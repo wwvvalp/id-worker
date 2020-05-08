@@ -72,7 +72,7 @@ public class CheckHandler {
                 !(Const.NODE_PREFIX + "/" + x + "/ephemeral").equals(finalParentNode +Const.EPHEMERAL_NODE_SUFFIX) && zkClient.isExistNode(Const.NODE_PREFIX + "/" + x + "/ephemeral"))
                 .collect(Collectors.toList());
         if (Tools.isNotNull(runPaths)) {
-            Double averageTime = runPaths.stream().map(x -> Long.valueOf(zkClient.getNodeData(Const.NODE_PREFIX + "/" + x)))
+            Double averageTime = runPaths.stream().map(x -> Long.valueOf(zkClient.getNodeData(Const.NODE_PREFIX + "/" + x+Const.EPHEMERAL_NODE_SUFFIX)))
                     .collect(Collectors.toList())
                     .stream().collect(Collectors.averagingDouble(x -> x));
             if (averageTime > System.currentTimeMillis()) {
