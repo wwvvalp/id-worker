@@ -30,24 +30,27 @@ public class TimeUploadExecutor implements Runnable {
 
     private ZKClient zkClient;
 
-    public TimeUploadExecutor(ZKClient zkClient) {
+    private String parentNode;
+
+    public TimeUploadExecutor(ZKClient zkClient, String parentNode) {
         this.zkClient = zkClient;
+        this.parentNode = parentNode;
     }
 
-    public static void schedule(ZKClient zkClient) {
-        executor.submit(new TimeUploadExecutor(zkClient));
+    public static void schedule(ZKClient zkClient, String parentNode) {
+        executor.submit(new TimeUploadExecutor(zkClient, parentNode));
     }
 
     @Override
     public void run() {
         try {
-            long lastTime = Long.parseLong(zkClient.getNodeData(Const.LOCAL_NODE));
+            long lastTime = Long.parseLong(zkClient.getNodeData(parentNode +Const.EPHEMERAL_NODE_SUFFIX));
             long localTime = System.currentTimeMillis();
             if (lastTime > localTime) {
                 logger.error("【TimeUploadExecutor】服务器(ip:{})发生时钟回拨，请及时校准服务器时间！！！", Tools.getLocalIP());
                 throw new IllegalStateException(Tools.getLocalIP() + "::服务器时钟发生回拨，请及时校准服务器时间！！！");
             }
-            zkClient.updateNodeData(Const.LOCAL_NODE, String.valueOf(localTime));
+            zkClient.updateNodeData(parentNode +Const.EPHEMERAL_NODE_SUFFIX, String.valueOf(localTime));
             logger.info("【TimeUploadExecutor】localTime={}", localTime);
         } catch (Exception e) {
             logger.error("【TimeUploadExecutor】error", e);

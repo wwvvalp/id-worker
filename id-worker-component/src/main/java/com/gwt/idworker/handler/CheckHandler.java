@@ -27,7 +27,7 @@ public class CheckHandler {
     /**
      * 校验时钟是否回拨
      */
-    public void checkTurnBackClock() {
+    public String checkTurnBackClock() throws Exception {
         //1、服务启动判断服务器节点父节点是否存在，不存在创建节点（持久节点）
         boolean existNode = zkClient.isExistNode(Const.NODE_PREFIX);
         if (!existNode) {
@@ -35,19 +35,31 @@ public class CheckHandler {
             logger.info("【Init.checkTurnBackClock】父节点不存在，创建 result={}", result);
         }
         //2、判断服务器节点（持久节点）是否存在，不存在创建并创建临时节点
-        existNode = zkClient.isExistNode(Const.LOCAL_NODE);
-        long localTime = System.currentTimeMillis();
-        if (!existNode) {
-            boolean result = zkClient.crateNode(Const.LOCAL_NODE, CreateMode.PERSISTENT, Long.toString(localTime));
+        String ip = Tools.getLocalIP();
+        List<String> parents = zkClient.getChildren(Const.NODE_PREFIX);
+        if (parents  == null) {
+            boolean result = zkClient.crateNode(Const.LOCAL_NODE, CreateMode.PERSISTENT_SEQUENTIAL, ip);
             logger.info("【Init.checkTurnBackClock】本机点不存在，创建 result={}", result);
         }
-        existNode = zkClient.isExistNode(Const.EPHEMERAL_NODE);
-        if (existNode) {
-            zkClient.deleteNode(Const.EPHEMERAL_NODE);
+        String parentNode = null;
+        for (String parent : parents) {
+            String nodeData = zkClient.getNodeData(Const.NODE_PREFIX + "/" + parent);
+            if (ip.equals(nodeData)) {
+                parentNode = Const.NODE_PREFIX + "/" + parent;
+                break;
+            }
         }
-        zkClient.crateNode(Const.EPHEMERAL_NODE, CreateMode.EPHEMERAL, Long.toString(localTime));
+        if (parentNode  == null) {
+            boolean result = zkClient.crateNode(Const.LOCAL_NODE, CreateMode.PERSISTENT_SEQUENTIAL, ip);
+            logger.info("【Init.checkTurnBackClock】本机点不存在，创建 result={}", result);
+        }
+        existNode = zkClient.isExistNode(parentNode+Const.EPHEMERAL_NODE_SUFFIX);
+        if (existNode) {
+            zkClient.deleteNode(parentNode+Const.EPHEMERAL_NODE_SUFFIX);
+        }
+        zkClient.crateNode(parentNode+Const.EPHEMERAL_NODE_SUFFIX, CreateMode.EPHEMERAL, Long.toString(System.currentTimeMillis()));
         //3、校验-服务器时间与定时上报时间比较，若小于则服务器时钟回拨，异常报警
-        long remoteTime = Long.parseLong(zkClient.getNodeData(Const.LOCAL_NODE));
+        long remoteTime = Long.parseLong(zkClient.getNodeData(parentNode+Const.EPHEMERAL_NODE_SUFFIX));
         if (remoteTime > System.currentTimeMillis()) {
             logger.error("【服务器时钟回拨，请校准时间后启动】");
             throw new IllegalStateException("服务器时钟回拨，请校准时间后启动！！！");
@@ -55,8 +67,9 @@ public class CheckHandler {
         //4、校验-服务器时间与其他运行服务器平均时间比较，若小于则服务器时钟回拨，异常报警
         List<String> children = zkClient.getChildren(Const.NODE_PREFIX);
         //其他运行服务平均时间
+        String finalParentNode = parentNode;
         List<String> runPaths = children.stream().filter(x ->
-                !(Const.NODE_PREFIX + "/" + x + "/ephemeral").equals(Const.EPHEMERAL_NODE) && zkClient.isExistNode(Const.NODE_PREFIX + "/" + x + "/ephemeral"))
+                !(Const.NODE_PREFIX + "/" + x + "/ephemeral").equals(finalParentNode +Const.EPHEMERAL_NODE_SUFFIX) && zkClient.isExistNode(Const.NODE_PREFIX + "/" + x + "/ephemeral"))
                 .collect(Collectors.toList());
         if (Tools.isNotNull(runPaths)) {
             Double averageTime = runPaths.stream().map(x -> Long.valueOf(zkClient.getNodeData(Const.NODE_PREFIX + "/" + x)))
@@ -67,5 +80,6 @@ public class CheckHandler {
                 throw new IllegalStateException("服务器时钟回拨，请校准时间后启动！！！");
             }
         }
+        return parentNode;
     }
 }

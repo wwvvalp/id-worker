@@ -25,11 +25,13 @@ public class IdWorkerConsumerApplication {
         return args -> {
             for (int i=0;i<4000;i++) {
                 new Thread(()->{
+                    Long start = System.currentTimeMillis();
                     Long id = idWorker.generateId().getData();
-                    logger.info("【idWorker.generateId()】ID={}", id);
+                    logger.info("【idWorker.generateId()】ID={}, 耗时={}", id, System.currentTimeMillis()-start);
                     logger.info("【idWorker.decodeId()】ID={}", idWorker.decodeId(id).getData());
                 }).start();
             }
+            Thread.sleep(10000);
 
         };
     }

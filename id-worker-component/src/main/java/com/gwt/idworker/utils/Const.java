@@ -59,12 +59,12 @@ public class Const {
     /**
      * 本机节点
      */
-    public static final String LOCAL_NODE = NODE_PREFIX + NODE_PREFIX + Tools.getLocalIP();
+    public static final String LOCAL_NODE = NODE_PREFIX + NODE_PREFIX;
 
     /**
      * 本机临时节点
      */
-    public static final String EPHEMERAL_NODE = NODE_PREFIX + NODE_PREFIX + Tools.getLocalIP() + "/ephemeral";
+    public static final String EPHEMERAL_NODE_SUFFIX = "/ephemeral";
 
 
 }

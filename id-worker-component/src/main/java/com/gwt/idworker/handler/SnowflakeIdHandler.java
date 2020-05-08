@@ -17,6 +17,10 @@ public class SnowflakeIdHandler {
      */
     private long workerId;
 
+    public void setWorkerId(long workerId) {
+        this.workerId = workerId;
+    }
+
     /**
      * 数据中心ID(0~31)
      */

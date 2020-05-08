@@ -27,8 +27,8 @@ public class DecodeIdHandler {
         String binaryString = Long.toBinaryString(id);
         long time = Long.valueOf(binaryString.substring(0, (int) (binaryString.length() - Const.TIMESTAMP_LEFT_SHIFT)), 2) + configuration.getStartTimestamp();
         String timeFormat = DATE_FORMAT.format(new Date(time));
-        int dataCenterId = Integer.valueOf(binaryString.substring((int) (binaryString.length() - Const.TIMESTAMP_LEFT_SHIFT), (int) (binaryString.length() - Const.DATA_CENTER_ID_SHIFT)), 2);
-        int workerId = Integer.valueOf(binaryString.substring((int)(binaryString.length() - Const.DATA_CENTER_ID_SHIFT), (int)(binaryString.length() - Const.WORKER_ID_SHIFT)), 2);
+        int workerId = Integer.valueOf(binaryString.substring((int) (binaryString.length() - Const.TIMESTAMP_LEFT_SHIFT), (int) (binaryString.length() - Const.DATA_CENTER_ID_SHIFT)), 2);
+        int dataCenterId = Integer.valueOf(binaryString.substring((int)(binaryString.length() - Const.DATA_CENTER_ID_SHIFT), (int)(binaryString.length() - Const.WORKER_ID_SHIFT)), 2);
         int sequence = Integer.valueOf(binaryString.substring((int)(binaryString.length() - Const.WORKER_ID_SHIFT), binaryString.length()), 2);
         return new DecodeIdDTO(time, timeFormat, dataCenterId, workerId, sequence);
     }
